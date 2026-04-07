@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movies!</title>
-    <link rel="stylesheet" href="index.css" />
-    <script src="index.js"></script>
-  </head>
 
-  <body>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movies!</title>
+
+  <!-- Link to the external stylesheet for the overview page -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- Load the JavaScript that fetches and renders the movie cards -->
+  <script src="index.js"></script>
+</head>
+
+<body>
+<!--
+    <main> marks the primary content area of the page.
+    Movie cards are appended here by JavaScript.
+    Using <main> instead of appending directly to <body> gives the page
+    better structure and leaves room for a header or footer outside this area.
+-->
+<main id="movies-container"></main>
+</body>
+
 </html>

@@ -1,41 +1,153 @@
+/*
+ * index.css — Styles for the movie overview page
+ *
+ * This CSS was originally inline in index.html (Exercise 1) and has been
+ * moved to a separate file for better separation of concerns.
+ * It imports base.css which provides shared styles used across pages.
+ */
 @import url(base.css);
 
-h1 {
-  font-size: 200%;
-  margin: 8px 0px;
+/*
+ * DARK THEME STYLING
+ *
+ * CSS rules are written as "selector { property: value; }" pairs.
+ * The selector targets which HTML elements the rules apply to.
+ * We use element names (body, h2, img, p), class names (.genre),
+ * or our own custom classes (.movie-info, .rating, .meta-label).
+ */
+
+/* Styles for the entire page body */
+body {
+  /*
+   * JetBrains Mono is a monospace font designed for code editors.
+   * 'monospace' is the correct fallback category — if the font fails
+   * to load, the browser picks any monospace font it has available.
+   */
+  font-family: 'JetBrains Mono', monospace;
+  background-color: #1e1e1e; /* dark grey — easy on the eyes, neutral tone */
+  color: #e0e0e0;            /* light grey text so it's readable on dark bg */
+  margin: 0;                 /* remove the browser's default outer spacing */
+  padding: 20px;             /* add inner spacing so content doesn't touch the edge */
 }
 
+/* Movie title heading */
+h2 {
+  /*
+   * We use <h2> (not <h1>) for movie titles because a page should
+   * only have one <h1> — the main page heading. Each movie card is
+   * a sub-section, so <h2> is the semantically correct level.
+   */
+  font-weight: bold;
+  margin: 0 0 8px 0; /* only bottom margin — top/left/right are 0 */
+  color: #f5f5f5;    /* near-white to stand out against the dark card */
+  font-size: 1.6em;  /* 1em = the current font size; 1.6em is 60% larger */
+}
+
+/* Movie poster image */
 img {
-  border-radius: 12px;
+  border-radius: 8px;  /* rounded corners soften the look */
+  max-width: 300px;    /* prevent the poster from growing too large */
+  width: 300px;        /* consistent width so all posters take the same space */
+  height: auto;        /* height scales proportionally — no stretching */
 }
 
+/*
+ * Each movie is wrapped in an <article> element.
+ * We chose <article> because it is a semantic HTML element that
+ * represents a self-contained, independently meaningful piece of content —
+ * exactly what a single movie card is.
+ */
 article {
-  background-color: lightgray;
-  border-radius: 16px;
-  padding: 16px;
-  margin: 2vw;
+  background-color: #141414; /* very dark card background */
+  border-radius: 12px;       /* rounded card corners */
+  margin: 20px auto;         /* vertical spacing between cards; auto centers horizontally */
+  padding: 20px;             /* inner breathing room */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); /* subtle drop shadow for depth */
+  max-width: 800px;          /* cards don't stretch too wide on large screens */
+  display: flex;             /* flexbox places the poster and text side by side */
+  gap: 20px;                 /* space between the poster image and the text column */
 }
 
-span {
-  margin-right: 4px;
+/* The div that holds all the text info next to the poster */
+.movie-info {
+  flex: 1; /* take up all remaining horizontal space after the image */
 }
 
+/* General paragraph spacing */
+p {
+  margin: 6px 0;    /* small top/bottom gap between each info line */
+  line-height: 1.5; /* 1.5x the font size between lines — easier to read */
+}
+
+/*
+ * Genre tags — we give each genre its own <span> with class "genre"
+ * so we can style them independently from other <span> elements.
+ */
 .genre {
-  padding: 4px 8px;
-  border: solid black 1px;
-  border-radius: 6px;
-  background-color: darkgray;
+  background-color: #141414;  /* same dark tone as the card — pill defined by its border */
+  padding: 3px 10px;          /* top/bottom 3px, left/right 10px */
+  border-radius: 20px;        /* large radius turns the rectangle into a pill shape */
+  display: inline-block;      /* allows padding to work correctly on a span */
+  font-size: 0.85em;          /* slightly smaller than surrounding text */
+  border: 1px solid #888888;  /* grey outline gives the pill its shape */
+  margin-right: 4px;          /* gap between individual genre pills */
+  margin-bottom: 4px;         /* gap if genres wrap to a second line */
+}
+
+/* Rating numbers — green for a fresh, distinct look */
+.rating {
+  color: #5aca00;
   font-weight: bold;
 }
 
-input {
-  width: 100%;
+/* Dim label text (e.g. "Released:", "Runtime:") so the value stands out */
+.meta-label {
+  color: #aaaaaa;   /* muted grey — less prominent than the actual values */
+  font-size: 0.85em;
 }
+/* already implemented in base.css*/
+/* Style for the Edit button on each movie card */
+/*button {*/
+/*    margin-top: 10px;*/
+/*    cursor: pointer;*/
+/*    background-color: #141414;  !* same dark tone as the card — pill defined by its border *!*/
+/*    padding: 3px 10px;          !* top/bottom 3px, left/right 10px *!*/
+/*    border-radius: 20px;        !* large radius turns the rectangle into a pill shape *!*/
+/*    display: inline-block;      !* allows padding to work correctly on a span *!*/
+/*    font-size: 0.85em;          !* slightly smaller than surrounding text *!*/
+/*    border: 1px solid #888888;  !* grey outline gives the pill its shape *!*/
+/*    margin-right: 4px;          !* gap between individual genre pills *!*/
+/*    margin-bottom: 4px;*/
+/*} */
 
-select {
-  width: 100%;
-}
 
-textarea {
-  width: 100%;
+/*
+ * RESPONSIVE DESIGN — mobile phones
+ *
+ * A media query applies rules only when a condition is true.
+ * "max-width: 600px" means: on screens 600px wide or narrower
+ * (i.e. phones), use these overrides instead.
+ *
+ * Without this, the side-by-side poster + text layout would be
+ * too cramped on a small screen. We switch to a vertical stack instead.
+ */
+@media (max-width: 600px) {
+  body {
+    padding: 10px; /* less outer padding on small screens */
+  }
+
+  article {
+    flex-direction: column; /* stack poster above text instead of side by side */
+    margin: 12px auto;      /* tighter vertical gap between cards */
+    padding: 14px;          /* slightly less inner padding */
+  }
+
+  img {
+    max-width: 100%;        /* poster fills the full card width on mobile */
+    width: 100%;
+  }
+
+  h2 {
+    font-size: 1.3em;       /* slightly smaller title so it fits on one line */
+  }
 }

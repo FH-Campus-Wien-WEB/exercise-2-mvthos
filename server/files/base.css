@@ -1,11 +1,16 @@
 body {
-  font-family: "Trebuchet MS", sans-serif;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 button {
-    padding: 0px 8px;
-    margin-right: 8px;
-    border-width: 1px;
-    border-radius: 4px;
-    font-size: 110%;
+    margin-top: 10px;
+    cursor: pointer;
+    background-color: #141414;  /* same dark tone as the card — pill defined by its border */
+    padding: 3px 10px;          /* top/bottom 3px, left/right 10px */
+    border-radius: 20px;        /* large radius turns the rectangle into a pill shape */
+    display: inline-block;      /* allows padding to work correctly on a span */
+    font-size: 0.85em;          /* slightly smaller than surrounding text */
+    border: 1px solid #888888;  /* grey outline gives the pill its shape */
+    margin-right: 4px;          /* gap between individual genre pills */
+    margin-bottom: 4px;
 }
