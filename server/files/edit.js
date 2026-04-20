@@ -57,7 +57,7 @@ function getMovie() {
 
   /* Filter to only elements that have an id (skip buttons without ids) */
   const elements = Array.from(document.forms[0].elements).filter(
-      (element) => element.id,
+    (element) => element.id,
   );
 
   for (const element of elements) {
@@ -76,16 +76,16 @@ function getMovie() {
         }
       }
     } else if (
-        name === "Metascore" ||
-        name === "Runtime" ||
-        name === "imdbRating"
+      name === "Metascore" ||
+      name === "Runtime" ||
+      name === "imdbRating"
     ) {
       /* Convert numeric fields from string to number */
       value = Number(element.value);
     } else if (
-        name === "Actors" ||
-        name === "Directors" ||
-        name === "Writers"
+      name === "Actors" ||
+      name === "Directors" ||
+      name === "Writers"
     ) {
       /* Split comma-separated list fields into arrays, trimming whitespace */
       value = element.value.split(",").map((item) => item.trim());
@@ -160,7 +160,7 @@ xhr.onload = function () {
   } else {
     /* Show an error alert if loading failed */
     alert(
-        "Loading of movie data failed. Status was " +
+      "Loading of movie data failed. Status was " +
         xhr.status +
         " - " +
         xhr.statusText,

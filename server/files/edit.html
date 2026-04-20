@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Movie</title>
@@ -14,136 +14,136 @@
         - Auto-loading: reads imdbID from URL query param and fetches the movie
     -->
     <script src="edit.js"></script>
-</head>
-<body>
-<h1>Edit Movie</h1>
-
-<!--
-    The edit form for a single movie.
-    Each visible field is wrapped in a <div> with a <label>.
-    The id of each input must match the property name exactly
-    (e.g. id="Title", id="Released") so that setMovie() and
-    getMovie() in edit.js can map between form fields and the
-    movie object automatically.
--->
-<form>
+  </head>
+  <body>
+    <h1>Edit Movie</h1>
 
     <!--
-        Hidden field for imdbID — not editable by the user, but
-        needed so getMovie() can include it in the PUT request.
-        No <div> or <label> needed since it's not visible.
+        The edit form for a single movie.
+        Each visible field is wrapped in a <div> with a <label>.
+        The id of each input must match the property name exactly
+        (e.g. id="Title", id="Released") so that setMovie() and
+        getMovie() in edit.js can map between form fields and the
+        movie object automatically.
     -->
-    <input type="hidden" id="imdbID" />
+    <form>
 
-    <!-- Title: text input for the movie title -->
-    <div>
+      <!--
+          Hidden field for imdbID — not editable by the user, but
+          needed so getMovie() can include it in the PUT request.
+          No <div> or <label> needed since it's not visible.
+      -->
+      <input type="hidden" id="imdbID" />
+
+      <!-- Title: text input for the movie title -->
+      <div>
         <label for="Title">Title</label>
         <input type="text" id="Title" required />
-    </div>
+      </div>
 
-    <!-- Released: date input for the release date (ISO format YYYY-MM-DD) -->
-    <div>
+      <!-- Released: date input for the release date (ISO format YYYY-MM-DD) -->
+      <div>
         <label for="Released">Released</label>
         <input type="date" id="Released" required />
-    </div>
+      </div>
 
-    <!-- Runtime: number input for the runtime in minutes -->
-    <div>
+      <!-- Runtime: number input for the runtime in minutes -->
+      <div>
         <label for="Runtime">Runtime (min)</label>
         <input type="number" id="Runtime" required />
-    </div>
+      </div>
 
-    <!--
-        Directors, Writers, Actors: text inputs for comma-separated lists.
-        getMovie() in edit.js splits these by comma into arrays,
-        and setMovie() joins arrays back into comma-separated strings.
-    -->
-    <div>
+      <!--
+          Directors, Writers, Actors: text inputs for comma-separated lists.
+          getMovie() in edit.js splits these by comma into arrays,
+          and setMovie() joins arrays back into comma-separated strings.
+      -->
+      <div>
         <label for="Directors">Directors</label>
         <input type="text" id="Directors" required />
-    </div>
+      </div>
 
-    <div>
+      <div>
         <label for="Writers">Writers</label>
         <input type="text" id="Writers" required />
-    </div>
+      </div>
 
-    <div>
+      <div>
         <label for="Actors">Actors</label>
         <input type="text" id="Actors" required />
-    </div>
+      </div>
 
-    <!--
-        Genres: multi-select element with all 24 allowed genres.
-        The "multiple" attribute allows selecting more than one genre.
-        setMovie() marks matching options as selected,
-        getMovie() collects all selected options into an array.
-    -->
-    <div>
+      <!--
+          Genres: multi-select element with all 24 allowed genres.
+          The "multiple" attribute allows selecting more than one genre.
+          setMovie() marks matching options as selected,
+          getMovie() collects all selected options into an array.
+      -->
+      <div>
         <label for="Genres">Genres</label>
         <select id="Genres" multiple required>
-            <option value="Action">Action</option>
-            <option value="Adventure">Adventure</option>
-            <option value="Animation">Animation</option>
-            <option value="Biography">Biography</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Crime">Crime</option>
-            <option value="Documentary">Documentary</option>
-            <option value="Drama">Drama</option>
-            <option value="Family">Family</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Film Noir">Film Noir</option>
-            <option value="History">History</option>
-            <option value="Horror">Horror</option>
-            <option value="Music">Music</option>
-            <option value="Musical">Musical</option>
-            <option value="Mystery">Mystery</option>
-            <option value="Romance">Romance</option>
-            <option value="Sci-Fi">Sci-Fi</option>
-            <option value="Short Film">Short Film</option>
-            <option value="Sport">Sport</option>
-            <option value="Superhero">Superhero</option>
-            <option value="Thriller">Thriller</option>
-            <option value="War">War</option>
-            <option value="Western">Western</option>
+          <option value="Action">Action</option>
+          <option value="Adventure">Adventure</option>
+          <option value="Animation">Animation</option>
+          <option value="Biography">Biography</option>
+          <option value="Comedy">Comedy</option>
+          <option value="Crime">Crime</option>
+          <option value="Documentary">Documentary</option>
+          <option value="Drama">Drama</option>
+          <option value="Family">Family</option>
+          <option value="Fantasy">Fantasy</option>
+          <option value="Film Noir">Film Noir</option>
+          <option value="History">History</option>
+          <option value="Horror">Horror</option>
+          <option value="Music">Music</option>
+          <option value="Musical">Musical</option>
+          <option value="Mystery">Mystery</option>
+          <option value="Romance">Romance</option>
+          <option value="Sci-Fi">Sci-Fi</option>
+          <option value="Short Film">Short Film</option>
+          <option value="Sport">Sport</option>
+          <option value="Superhero">Superhero</option>
+          <option value="Thriller">Thriller</option>
+          <option value="War">War</option>
+          <option value="Western">Western</option>
         </select>
-    </div>
+      </div>
 
-    <!-- Plot: textarea for the movie plot summary (5 rows tall) -->
-    <div>
+      <!-- Plot: textarea for the movie plot summary (5 rows tall) -->
+      <div>
         <label for="Plot">Plot</label>
         <textarea id="Plot" rows="5" required></textarea>
-    </div>
+      </div>
 
-    <!-- Poster: URL input for the movie poster image URL -->
-    <div>
+      <!-- Poster: URL input for the movie poster image URL -->
+      <div>
         <label for="Poster">Poster URL</label>
         <input type="url" id="Poster" required />
-    </div>
+      </div>
 
-    <!-- Metascore: number input for the Metascore rating -->
-    <div>
+      <!-- Metascore: number input for the Metascore rating -->
+      <div>
         <label for="Metascore">Metascore</label>
         <input type="number" id="Metascore" required />
-    </div>
+      </div>
 
-    <!-- imdbRating: number input for the IMDb rating (step 0.1 for decimals) -->
-    <div>
+      <!-- imdbRating: number input for the IMDb rating (step 0.1 for decimals) -->
+      <div>
         <label for="imdbRating">IMDb Rating</label>
         <input type="number" id="imdbRating" step="0.1" required />
-    </div>
+      </div>
 
-    <!--
-        Form buttons:
-        - Save: calls putMovie() which sends a PUT request to the server.
-          type="button" prevents default form submission (which would
-          reload the page with a GET request instead of our XHR PUT).
-        - Cancel: navigates back to the overview page without saving.
-    -->
-    <div>
+      <!--
+          Form buttons:
+          - Save: calls putMovie() which sends a PUT request to the server.
+            type="button" prevents default form submission (which would
+            reload the page with a GET request instead of our XHR PUT).
+          - Cancel: navigates back to the overview page without saving.
+      -->
+      <div>
         <button type="button" onclick="putMovie()">Save</button>
         <button type="button" onclick="location.href='index.html'">Cancel</button>
-    </div>
-</form>
-</body>
+      </div>
+    </form>
+  </body>
 </html>

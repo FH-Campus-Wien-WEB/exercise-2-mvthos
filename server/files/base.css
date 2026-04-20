@@ -1,11 +1,18 @@
 body {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 
+/*
+ * Buttons are styled to match the genre "pill" look from index.css so that
+ * the navigation buttons and the Edit button feel like they belong to the
+ * same dark theme. Form elements like <button> do NOT inherit the body's
+ * text color by default, so we set it explicitly to match the page text.
+ */
 button {
     margin-top: 10px;
     cursor: pointer;
     background-color: #141414;  /* same dark tone as the card — pill defined by its border */
+    color: #e0e0e0;             /* explicit light text — buttons don't inherit body color */
     padding: 3px 10px;          /* top/bottom 3px, left/right 10px */
     border-radius: 20px;        /* large radius turns the rectangle into a pill shape */
     display: inline-block;      /* allows padding to work correctly on a span */

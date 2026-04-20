@@ -1,45 +1,86 @@
 /*
- * Fetch and render all movies on page load.
+ * index.js — Fetch and render movies on the overview page.
  *
- * This code was originally inline in index.html (Exercise 1) and has been
- * moved to a separate .js file. It uses XMLHttpRequest (XHR) to fetch
- * movie data from the server, then dynamically builds the DOM for each movie.
+ * Two responsibilities:
+ *
+ *   1. loadMovies(genre)
+ *      Fetches /movies (optionally filtered by ?genre=<name>) and renders
+ *      one <article> card per movie into the <main id="movies-container">
+ *      element. Called by every nav button click and once on page load.
+ *
+ *   2. window.onload
+ *      Fetches /genres, then for each genre creates a <button> in
+ *      <nav id="genre-nav">. The first button is "All" (loads every
+ *      movie). After the buttons exist, we programmatically click the
+ *      first one to trigger the initial render.
+ *
+ * Both requests use XMLHttpRequest (XHR), the classic browser API for
+ * making asynchronous HTTP requests without navigating away from the page.
  */
-window.onload = function () {
+
+/*
+ * loadMovies(genre)
+ *
+ * @param {string} [genre] — optional genre name to filter by. If omitted
+ *                           or falsy, the server returns all movies.
+ *
+ * The function clears any previously rendered cards from the container,
+ * builds the request URL (adding ?genre=<name> when filtering), then
+ * fetches the data and rebuilds the card list from scratch.
+ */
+function loadMovies(genre) {
   /*
-   * XMLHttpRequest (XHR) is the classic browser API for making
-   * HTTP requests without navigating away from the page (AJAX).
+   * The container is the <main> element from index.html. We clear it
+   * with innerHTML = "" so old cards from the previous filter are gone
+   * before we render the new set.
    */
+  const container = document.querySelector("#movies-container");
+  container.innerHTML = "";
+
+  /*
+   * Build the request URL using the URL API. We start from "/movies"
+   * relative to the current page origin. URLSearchParams.set() adds or
+   * replaces the "genre" query parameter in a safe, escaped way (no
+   * manual string concatenation that could break on weird genre names).
+   *
+   * If no genre is given we leave the URL as "/movies" and the server
+   * returns the full list (see the GET /movies handler in server.js).
+   *
+   * Note: 'genre' must be the exact name of the query parameter — the
+   * server reads req.query.genre.
+   */
+  const url = new URL("/movies", location.origin);
+  if (genre) {
+    url.searchParams.set("genre", genre);
+  }
+
   const xhr = new XMLHttpRequest();
 
   /*
-   * xhr.onload is a callback — a function the browser calls when
-   * the response has fully arrived from the server.
+   * xhr.onload fires once the response has fully arrived. We check the
+   * HTTP status: 200 = OK, anything else means we render an error message.
    */
   xhr.onload = function () {
-    /*
-     * We target the <main id="movies-container"> element instead of
-     * appending directly to <body>. This is cleaner structurally.
-     */
-    const container = document.querySelector("#movies-container");
-
     if (xhr.status === 200) {
       /*
-       * HTTP 200 means "OK" — the server responded successfully.
-       * xhr.responseText contains the raw JSON text; JSON.parse()
-       * converts it into JavaScript objects we can work with.
+       * The response is JSON text — JSON.parse() turns it into an array
+       * of plain JavaScript movie objects we can iterate.
        */
       const movies = JSON.parse(xhr.responseText);
 
       /*
-       * Loop over every movie and build a card for it.
+       * For every movie, build a self-contained <article> card and
+       * append it to the container. We use createElement + appendChild
+       * (not innerHTML strings) so user-provided text is never
+       * interpreted as HTML — safer against XSS and easier to reason
+       * about.
        */
       for (const movie of movies) {
         /*
          * <article> is the semantically correct element for a
-         * self-contained piece of content like a movie card.
-         * The id is set to the imdbID so each movie element
-         * can be identified in the DOM.
+         * self-contained piece of content like a single movie card.
+         * We set its id to imdbID so each movie is uniquely identifiable
+         * in the DOM (handy for debugging and future features).
          */
         const article = document.createElement("article");
         article.id = movie.imdbID;
@@ -48,38 +89,38 @@ window.onload = function () {
         const img = document.createElement("img");
         img.src = movie.Poster;
         img.alt = movie.Title + " poster";
-
         /*
-         * onerror fires if the image URL is broken or the network
-         * request fails. We hide the element to keep the card clean.
+         * onerror fires when the browser cannot load the image (broken
+         * URL, network failure). We hide it so the card doesn't show a
+         * broken-image icon next to the rest of the data.
          */
         img.onerror = function () {
           img.style.display = "none";
         };
-
         article.appendChild(img);
 
         /*
-         * A plain <div> groups all the text fields together so flexbox
-         * in CSS can place them next to the poster image as one column.
+         * A <div> groups all the text fields into one column so flexbox
+         * (in CSS) can place them next to the poster image.
          */
         const info = document.createElement("div");
         info.className = "movie-info";
 
-        /* --- Title --- */
-        /*
-         * <h2> is used (not <h1>) because each movie is a card
-         * within the page, so <h2> is the correct heading level.
-         */
+        /* --- Title (h2 — h1 is reserved for the page header) --- */
         const title = document.createElement("h2");
         title.textContent = movie.Title;
         info.appendChild(title);
 
-        /* --- Released date --- */
-        /*
-         * Each info line is a <p> containing a label <span> and a text
-         * node for the value. We use textContent (not innerHTML) so no
-         * raw HTML is ever interpreted — safer and more explicit.
+        /* --- Released date ---
+         *
+         * The pattern repeated below for every meta field is:
+         *   1. Create a <p> for one line of info.
+         *   2. Inside it, a <span class="meta-label"> for the label so
+         *      CSS can style it (dimmer, smaller).
+         *   3. Append a plain text node for the value.
+         *
+         * Using textContent (not innerHTML) prevents any HTML in the
+         * value from being interpreted as markup.
          */
         const released = document.createElement("p");
         const releasedLabel = document.createElement("span");
@@ -89,20 +130,19 @@ window.onload = function () {
         released.append(" " + movie.Released);
         info.appendChild(released);
 
-        /* --- Runtime --- */
+        /* --- Runtime (number of minutes — we add the "min" unit) --- */
         const runtime = document.createElement("p");
         const runtimeLabel = document.createElement("span");
         runtimeLabel.className = "meta-label";
         runtimeLabel.textContent = "Runtime:";
         runtime.appendChild(runtimeLabel);
-        /* movie.Runtime is a number (e.g. 109), so we add ' min' as the unit */
         runtime.append(" " + movie.Runtime + " min");
         info.appendChild(runtime);
 
-        /* --- Genres --- */
-        /*
-         * Genres is an array (e.g. ["Horror", "Mystery", "Sci-Fi"]).
-         * Each genre gets its own <span class="genre"> styled as a pill.
+        /* --- Genres ---
+         *
+         * Genres is an array (e.g. ["Horror","Mystery","Sci-Fi"]). Each
+         * genre gets its own <span class="genre"> styled as a pill in CSS.
          */
         const genresP = document.createElement("p");
         const genresLabel = document.createElement("span");
@@ -110,18 +150,18 @@ window.onload = function () {
         genresLabel.textContent = "Genres:";
         genresP.appendChild(genresLabel);
         genresP.append(" ");
-        for (const genre of movie.Genres) {
+        for (const g of movie.Genres) {
           const span = document.createElement("span");
           span.className = "genre";
-          span.textContent = genre;
+          span.textContent = g;
           genresP.appendChild(span);
         }
         info.appendChild(genresP);
 
-        /* --- Directors, Writers, Actors --- */
-        /*
-         * These are also arrays, but displayed as comma-separated
-         * lists rather than pills — join(", ") is the simplest approach.
+        /* --- Directors / Writers / Actors ---
+         *
+         * Each is an array of names; we display them as a comma-separated
+         * string with Array.prototype.join(", ").
          */
         const directors = document.createElement("p");
         const directorsLabel = document.createElement("span");
@@ -147,7 +187,7 @@ window.onload = function () {
         actors.append(" " + movie.Actors.join(", "));
         info.appendChild(actors);
 
-        /* --- Plot --- */
+        /* --- Plot (free text summary) --- */
         const plot = document.createElement("p");
         const plotLabel = document.createElement("span");
         plotLabel.className = "meta-label";
@@ -156,10 +196,11 @@ window.onload = function () {
         plot.append(" " + movie.Plot);
         info.appendChild(plot);
 
-        /* --- Ratings --- */
-        /*
-         * Both ratings go into a single <p> so they sit on the same line.
-         * Each label and value is its own element — no raw HTML strings.
+        /* --- Ratings ---
+         *
+         * Both ratings share one <p> so they sit on the same line. The
+         * rating numbers themselves wear class "rating" so CSS can color
+         * them green for visual emphasis.
          */
         const ratingsP = document.createElement("p");
 
@@ -187,9 +228,9 @@ window.onload = function () {
         info.appendChild(ratingsP);
 
         /*
-         * Edit button — navigates to edit.html with the movie's
-         * imdbID passed as a query parameter so the edit page knows
-         * which movie to load and display in the form.
+         * Edit button — navigates to edit.html with the imdbID in the
+         * query string so edit.js knows which movie to load and display
+         * in its form.
          */
         const editButton = document.createElement("button");
         editButton.textContent = "Edit";
@@ -198,14 +239,14 @@ window.onload = function () {
         };
         info.appendChild(editButton);
 
-        /* Attach the info div to the article, then the article to the page */
+        /* Attach the info column to the card, then the card to the page */
         article.appendChild(info);
         container.appendChild(article);
       }
     } else {
-      /* Any status other than 200 means something went wrong */
+      /* Any non-200 status means something went wrong server-side. */
       container.append(
-          "Daten konnten nicht geladen werden, Status " +
+        "Daten konnten nicht geladen werden, Status " +
           xhr.status +
           " - " +
           xhr.statusText
@@ -214,17 +255,78 @@ window.onload = function () {
   };
 
   /*
-   * xhr.onerror fires when the request cannot be completed at all —
-   * e.g. if the server is offline or there is no network connection.
+   * xhr.onerror fires when the request itself could not be sent or no
+   * response arrived (server offline, no network). We surface a short
+   * message in the container so the user knows something went wrong.
    */
   xhr.onerror = function () {
     document.querySelector("#movies-container").append("Network error: request failed.");
   };
 
   /*
-   * Configure and send the GET request to /movies.
-   * The browser will call xhr.onload when the response arrives.
+   * Open and send the GET request. .toString() converts the URL object
+   * into a string like "/movies" or "/movies?genre=Action".
    */
-  xhr.open("GET", "/movies");
+  xhr.open("GET", url.toString());
+  xhr.send();
+}
+
+/*
+ * window.onload runs after the HTML document has been fully parsed.
+ *
+ * It fetches the list of distinct genres from the server, then for
+ * each genre creates a <button> in the nav. A leading "All" button
+ * is added first so the user can clear the genre filter.
+ *
+ * After the buttons exist we programmatically click the first one
+ * (the "All" button). That click handler calls loadMovies() which
+ * performs the initial fetch and render of all movies.
+ */
+window.onload = function () {
+  const xhr = new XMLHttpRequest();
+
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      /* The response is a JSON-encoded array of genre name strings. */
+      const genres = JSON.parse(xhr.responseText);
+      const nav = document.querySelector("#genre-nav");
+
+      /*
+       * "All" button — must come first so that clicking the first
+       * button below loads the unfiltered list. Calling loadMovies()
+       * with no argument means no ?genre= parameter is sent.
+       */
+      const allBtn = document.createElement("button");
+      allBtn.textContent = "All";
+      allBtn.onclick = function () { loadMovies(); };
+      nav.appendChild(allBtn);
+
+      /*
+       * One button per genre. The closure over `genre` captures the
+       * specific value for each iteration so each button filters by
+       * its own genre name (not the last one in the loop).
+       */
+      for (const genre of genres) {
+        const btn = document.createElement("button");
+        btn.textContent = genre;
+        btn.onclick = function () { loadMovies(genre); };
+        nav.appendChild(btn);
+      }
+
+      /*
+       * Trigger the initial render by clicking the first button (the
+       * "All" button we appended first). Doing this here — rather than
+       * calling loadMovies() directly — keeps the "click a button to
+       * load movies" flow consistent across user actions and startup.
+       */
+      nav.querySelector("button").click();
+    }
+  };
+
+  xhr.onerror = function () {
+    document.querySelector("#movies-container").append("Network error: request failed.");
+  };
+
+  xhr.open("GET", "/genres");
   xhr.send();
 };

@@ -49,16 +49,27 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'files')));
 
 /*
- * GET /movies — return all movies as a JSON array.
+ * GET /movies — return movies as a JSON array.
  *
  * The model stores movies as an object (keyed by imdbID), but the
  * client expects an array. Object.values() extracts just the values
  * (movie objects) from the model and returns them as an array.
- * res.json() serializes the array to JSON and sets the Content-Type
- * header to 'application/json' automatically.
+ *
+ * Optional query parameter: ?genre=<name>
+ *   - Query parameters arrive on req.query (parsed by Express). For the
+ *     URL "/movies?genre=Action", req.query.genre is the string "Action".
+ *   - When a genre is provided, we keep only movies whose Genres array
+ *     contains that genre (Array.prototype.includes does an exact match).
+ *   - When no genre is provided, req.query.genre is undefined (falsy),
+ *     so we return the full list — this is required by Task 2.2.
+ *
+ * res.json() serializes the array to JSON and automatically sets the
+ * Content-Type header to 'application/json'.
  */
 app.get('/movies', function (req, res) {
-  res.json(Object.values(movieModel));
+  const genre = req.query.genre;
+  const all = Object.values(movieModel);
+  res.json(genre ? all.filter(m => m.Genres.includes(genre)) : all);
 });
 
 /*
@@ -106,6 +117,37 @@ app.put('/movies/:imdbID', function (req, res) {
     movieModel[imdbID] = movie;
     res.status(201).json(movie);
   }
+});
+
+/*
+ * GET /genres — return the alphabetically sorted list of distinct genres
+ *               across all movies in the model.
+ *
+ * Each movie has a Genres array (e.g. ["Horror", "Mystery", "Sci-Fi"]).
+ * Different movies may share genres, so we use a Set to collect them
+ * because a Set automatically removes duplicates.
+ *
+ * Steps:
+ *   1. Object.values(movieModel) — array of all movie objects.
+ *   2. Outer forEach iterates movies; inner forEach iterates that
+ *      movie's Genres and adds each genre to the Set (duplicates ignored).
+ *   3. [...genres] uses the spread operator to convert the Set into an
+ *      array (Set is not directly serialisable to JSON).
+ *   4. .sort() puts the genres in alphabetical order, which is the
+ *      natural order for navigation buttons in the UI.
+ *
+ * Example (from the task description): for movies with genres
+ *   ["Action","Adventure","Drama"], ["Comedy","Drama","Fantasy"],
+ *   ["Drama","Romance"]
+ * the response is
+ *   ["Action","Adventure","Comedy","Drama","Fantasy","Romance"].
+ */
+app.get('/genres', function (req, res) {
+  const genres = new Set();
+  Object.values(movieModel).forEach(movie => {
+    movie.Genres.forEach(genre => genres.add(genre));
+  });
+  res.json([...genres].sort());
 });
 
 /*
